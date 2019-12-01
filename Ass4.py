@@ -59,14 +59,14 @@ df = pd.read_csv("HotelInformation"
                  ".csv")
 
 
-spark = SparkSession \
-    .builder \
-    .appName("Python Spark create RDD example") \
-    .config("spark.some.config.option", "some-value") \
-    .getOrCreate()
-df = spark.read.format('com.databricks.spark.csv')
-df = pd.read_csv("HotelInformation"
-                 ".csv")
+#spark = SparkSession \
+##    .builder \
+  ##  .appName("Python Spark create RDD example") \
+  #  .config("spark.some.config.option", "some-value") \
+  #  .getOrCreate()
+#df = spark.read.format('com.databricks.spark.csv')
+#df = pd.read_csv("HotelInformation"
+          #       ".csv")
 
 
 df['AmenitiesList'] =  [re.sub(r'Room Service','RoomService', str(x)) for x in df['AmenitiesList']]
@@ -91,8 +91,6 @@ df['GuestRecommendations(%)'] = df['GuestRecommendations(%)'].str.replace('%',''
 df['GuestRecommendations(%)'] = pd.to_numeric(df['GuestRecommendations(%)'])
 spark_df = spark.createDataFrame(df)
 spark_df.show()
-num_cols =['DiscountedRoomPrice']
-spark_df.select(num_cols).describe().show()
 #a = df['DiscountedRoomPrice']
 #desc1 = spark_df['DiscountedRoomPrice']
 #tats = desc1.describe()
@@ -131,8 +129,8 @@ df2 = spark.sql("SELECT _1 AS Keywords, _2 as Frequency from myTable limit 20") 
 pandD = df2.toPandas() #converting spark dataframes to pandas dataframes
 print(pandD)
 
-my_plot = pandD.plot(figsize = (20, 10),
-              x = "Keywords", y = "Frequency", kind  = "barh", legend = False )
+my_plot = pandD.plot(figsize = (10, 10),
+              x = "Keywords", y = "Frequency", kind  = "bar", legend = False )
 import numpy as np
 
 my_plot
@@ -171,7 +169,7 @@ print(pand)
 
 
 df_c = pand.sort_values('GuestRecommendations(%)')
-my_plot2 = df_c.plot(figsize = (20, 10),
+my_plot2 = df_c.plot(figsize = (10, 10),
               x = "HotelName", y = "GuestRecommendations(%)", kind  = "bar", legend = False )
 import numpy as np
 
@@ -188,3 +186,10 @@ plt.xticks(size = 18)
 plt.yticks(size = 18)
 plt.ylabel("Percentage",fontsize = 28)
 plt.show()
+
+num_rdd2 = spark_df.select("GuestRecommendations(%)").rdd.flatMap(lambda x: x)
+num_rdd2.max(),num_rdd2.min(), num_rdd2.sum(),num_rdd2.variance(),num_rdd2.stdev()
+print(num_rdd2.max())
+print(num_rdd2.min())
+print(num_rdd2.mean())
+print(num_rdd2.stats())
