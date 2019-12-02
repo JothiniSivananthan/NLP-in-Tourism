@@ -125,12 +125,12 @@ freqDistRDD = wordTokenizeRDD.flatMap(lambda x : nltk.FreqDist(x).most_common())
 print(freqDistRDD)
 df_fDist = freqDistRDD.toDF() #converting RDD to spark dataframe
 df_fDist.createOrReplaceTempView("myTable")
-df2 = spark.sql("SELECT _1 AS Keywords, _2 as Frequency from myTable limit 20") #renaming columns
+df2 = spark.sql("SELECT _1 AS HotelAmenities, _2 as Count from myTable limit 20") #renaming columns
 pandD = df2.toPandas() #converting spark dataframes to pandas dataframes
 print(pandD)
 
-my_plot = pandD.plot(figsize = (10, 10),
-              x = "Keywords", y = "Frequency", kind  = "bar", legend = False )
+my_plot = pandD.plot(figsize = (5, 5),
+              x = "HotelAmenities", y = "Count", kind  = "barh", legend = False )
 import numpy as np
 
 my_plot
@@ -140,10 +140,13 @@ my_plot
      #    ec='black',weights=np.zeros_like(pandD) + 100. / pandD.size)
 
 
-plt.title("Most common services in Goa Hotels", fontsize = 28)
-plt.xticks(size = 18)
-plt.yticks(size = 18)
-plt.ylabel("")
+plt.title("Most common amenities provided by Hotels in Goa", fontsize = 12)
+plt.xticks(size = 8)
+plt.yticks(size = 8)
+plt.ylabel("Hotel Amenities", size  = 12)
+plt.xlabel("Count", size  = 12)
+
+
 plt.show()
 
 
@@ -153,7 +156,8 @@ print(num_rdd.max())
 print(num_rdd.min())
 print(num_rdd.mean())
 print(num_rdd.stats())
-
+d = num_rdd.stats()
+print(d)
 
 
 num_rdd2 = spark_df.select("HotelName","GuestRecommendations(%)").rdd.map(lambda x:x)
@@ -169,8 +173,8 @@ print(pand)
 
 
 df_c = pand.sort_values('GuestRecommendations(%)')
-my_plot2 = df_c.plot(figsize = (10, 10),
-              x = "HotelName", y = "GuestRecommendations(%)", kind  = "bar", legend = False )
+my_plot2 = df_c.plot(figsize = (5, 5),
+              x = "HotelName", y = "GuestRecommendations(%)", kind  = "barh", legend = False )
 import numpy as np
 
 my_plot2
@@ -181,10 +185,11 @@ my_plot2
 
 
 
-plt.title("Guest Recommendations for Goa Hotels", fontsize = 28)
-plt.xticks(size = 18)
-plt.yticks(size = 18)
-plt.ylabel("Percentage",fontsize = 28)
+plt.title("Guest Recommendations for Hotels in Goa", fontsize = 12)
+plt.xticks(size = 8)
+plt.yticks(size = 8)
+plt.ylabel("Hotels",fontsize = 12)
+plt.xlabel("Guest Recommendation(%)", fontsize  = 12)
 plt.show()
 
 num_rdd2 = spark_df.select("GuestRecommendations(%)").rdd.flatMap(lambda x: x)
@@ -193,3 +198,37 @@ print(num_rdd2.max())
 print(num_rdd2.min())
 print(num_rdd2.mean())
 print(num_rdd2.stats())
+
+
+########################################################################
+num_rdd3 = spark_df.select("HotelName","DiscountedRoomPrice").rdd.map(lambda x:x)
+print(num_rdd3)
+
+df_fDists1 = num_rdd3.toDF() #converting RDD to spark dataframe
+print(df_fDists1)
+df_fDists1.show()
+#df_fDists.createOrReplaceTempView("myTable")
+
+pandk = df_fDists1.toPandas()
+print(pandk)
+
+
+df_c1 = pandk.sort_values('DiscountedRoomPrice')
+my_plot23 = df_c1.plot(figsize = (5, 5),
+              x = "HotelName", y = "DiscountedRoomPrice", kind  = "barh", legend = False )
+import numpy as np
+
+my_plot23
+#bins = np.arange(0, 100, 5.0)
+#plt.hist(pandD, bins, alpha=0.8, histtype='bar', color='gold',
+#plt.hist(pandD, bins, alpha=0.8, histtype='bar', color='gold',
+     #    ec='black',weights=np.zeros_like(pandD) + 100. / pandD.size)
+
+
+
+plt.title("Discounted Room Price for Hotels in Goa", fontsize = 12)
+plt.xticks(size = 8)
+plt.yticks(size = 8)
+plt.ylabel("Hotels",fontsize = 12)
+plt.xlabel("Price", fontsize  = 12)
+plt.show()
