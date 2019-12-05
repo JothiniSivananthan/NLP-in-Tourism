@@ -81,6 +81,8 @@ print(df)
 df['GuestRecommendations(%)']  = [re.sub(r'Guests recommend this hotel','', str(x)) for x in df['GuestRecommendations(%)']]
 df['GuestRecommendations(%)'] = df['GuestRecommendations(%)'].str.replace('%','')
 df['GuestRecommendations(%)'] = pd.to_numeric(df['GuestRecommendations(%)'])
+df.rename(columns={"DiscountedRoomPrice": "DiscountedRoomPrice(₹)"},inplace= True)
+print(df)
 spark_df = spark.createDataFrame(df)
 spark_df.show()
 
@@ -167,7 +169,7 @@ plt.show()
 
 
 ########################################################################
-num_rdd3 = spark_df.select("HotelName","DiscountedRoomPrice").rdd.map(lambda x:x)
+num_rdd3 = spark_df.select("HotelName","DiscountedRoomPrice(₹)").rdd.map(lambda x:x)
 print(num_rdd3)
 
 df_fDists1 = num_rdd3.toDF() #converting RDD to spark dataframe
@@ -179,9 +181,9 @@ pandk = df_fDists1.toPandas()
 print(pandk)
 
 
-df_c1 = pandk.sort_values('DiscountedRoomPrice')
+df_c1 = pandk.sort_values('DiscountedRoomPrice(₹)')
 my_plot23 = df_c1.plot(figsize = (5, 5),
-              x = "HotelName", y = "DiscountedRoomPrice", kind  = "barh", legend = False )
+              x = "HotelName", y = "DiscountedRoomPrice(₹)", kind  = "barh", legend = False )
 
 
 my_plot23
@@ -194,10 +196,10 @@ plt.ylabel("Hotels",fontsize = 12)
 plt.xlabel("Price(₹)", fontsize  = 12)
 plt.show()
 
+
+num_rdd = spark_df.select("DiscountedRoomPrice(₹)").rdd.flatMap(lambda x: x)
+
+print(num_rdd.stats())
 num_rdd2 = spark_df.select("GuestRecommendations(%)").rdd.flatMap(lambda x: x)
 
 print(num_rdd2.stats())
-
-num_rdd = spark_df.select("DiscountedRoomPrice").rdd.flatMap(lambda x: x)
-
-print(num_rdd.stats())
